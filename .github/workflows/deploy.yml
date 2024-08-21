@@ -1,0 +1,32 @@
+name: Deploy Nginx with SBOM Generation
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on pushes to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Install Syft
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh
+
+      # Step 3: Generate SBOM
+      - name: Generate SBOM
+        run: |
+          chmod +x ./scripts/generate-sbom.sh  # Make sure the script is executable
+          ./scripts/generate-sbom.sh
+
+      # Step 4: Deploy to Kubernetes using Argo CD (adjust based on your deployment method)
+      - name: Deploy to Argo CD
+        run: |
+          # Replace the following with your Argo CD CLI commands to sync the application
+          argocd app sync nginx-app
