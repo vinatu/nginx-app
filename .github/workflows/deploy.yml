@@ -1,4 +1,4 @@
-name: Deploy Nginx with SBOM Generation
+name: Deploy Nginx with SBOM Generation 
 
 on:
   push:
