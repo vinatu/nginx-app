@@ -1,42 +1,33 @@
-name: Deploy Nginx with SBOM Generation 
+name: Deploy Nginx with SBOM Generation
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow on pushes to the main branch
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Install Syft
       - name: Install Syft
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh
 
-      # Step 3: Generate SBOM
       - name: Generate SBOM
         run: |
-          chmod +x ./scripts/generate-sbom.sh  # Make sure the script is executable
+          chmod +x ./scripts/generate-sbom.sh
           ./scripts/generate-sbom.sh
 
-      # Step 3.1: Install Argo CD CLI
       - name: Install Argo CD CLI
         run: |
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          sudo chmod +x argocd
-          sudo mv argocd /usr/local/bin/
+          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          sudo chmod +x /usr/local/bin/argocd
 
-      # Step 4: Deploy to Kubernetes using Argo CD
       - name: Deploy to Argo CD
         run: |
-          # Login to Argo CD using credentials stored in GitHub Secrets
-          argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }} --insecure
-          
-          # Sync the Argo CD application
+          argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }}
           argocd app sync nginx-app
