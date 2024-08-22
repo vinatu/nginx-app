@@ -7,14 +7,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu environment for the job
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Install Syft for SBOM generation
+      # Step 2: Install Syft
       - name: Install Syft
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh
@@ -22,17 +22,18 @@ jobs:
       # Step 3: Generate SBOM
       - name: Generate SBOM
         run: |
-          chmod +x ./scripts/generate-sbom.sh  # Ensure the script is executable
-          ./scripts/generate-sbom.sh            # Run the script to generate SBOM
+          chmod +x ./scripts/generate-sbom.sh  # Make sure the script is executable
+          ./scripts/generate-sbom.sh
 
       # Step 4: Install Argo CD CLI
       - name: Install Argo CD CLI
         run: |
           curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          sudo chmod +x /usr/local/bin/argocd  # Make the Argo CD CLI executable
+          sudo chmod +x /usr/local/bin/argocd
 
       # Step 5: Deploy to Argo CD
       - name: Deploy to Argo CD
         run: |
-          argocd login https://${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }} --insecure
+          # Replace with your actual Argo CD server URL, username, and password
+          argocd login https://b328-86-41-92-85.ngrok-free.app/ --username admin --password 9f60V43J-91W9RvN --insecure
           argocd app sync nginx-app  # Sync the application to deploy
